@@ -1,31 +1,57 @@
-.default-class:hover {
+.daterange-td-basic {
+    padding: 5px;
+    width: 30px;
+    color: #2c2d2ecb;
+}
+
+.daterange-week {
+    font-size: 80%;
+    color: #ccc
+}
+
+.daterange-default-td:hover {
     cursor: pointer;
     background-color: #889afd3b
 }
 
-.interval-date:hover {
-    cursor: pointer;
-    background-color: #50b4db
-}
-
-.selected-date:hover {
-    cursor: pointer;
-    background-color: #50b4db
-}
-
-.selected-date {
-    background-color: #3ab0ffbd;
-}
-
-.interval-date {
+.daterange-interval-td {
     background-color: #b0d2ffb4;
 }
 
-.temp-date {
+.daterange-interval-td:hover {
+    cursor: pointer;
+    background-color: #50b4db
+}
+
+.daterange-selected-td {
+    background-color: #3ab0ffbd;
+}
+
+.daterange-selected-td:hover {
+    cursor: pointer;
+    background-color: #50b4db
+}
+
+
+.daterange-temp-td {
     background-color: #889afd3b;
 }
 
-.temp-date:hover, .nav-button:hover {
+.daterange-nav-button:hover {
+    background-color: #3ab0ffbd;
+    cursor: pointer;
+    color: white;
+}
+
+.daterange-nav-button path {
+    fill: #3ab0ffbd;
+}
+
+.daterange-nav-button:hover path {
+    fill: #FFF
+}
+
+.daterange-temp-td:hover {
     cursor: pointer;
 }
 
@@ -33,21 +59,24 @@ td {
     text-align: center;
 }
 
-.disabled-td {
-    padding: 10px;
-    opacity: 0.3;
-    color: brown;
+.daterange-disabled-td {
+    opacity: 0.4;
 }
 
-.today {
+.daterange-today {
     background-color: #ffd413;
 }
 
-.today:hover {
+.daterange-today:hover {
     cursor: pointer;
     background-color: #cca700;
 }
 
-.test2 {
-    background-color: red;
+.daterange-month-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.daterange-year-title {
+    font-weight: 630;
 }
