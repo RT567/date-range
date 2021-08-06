@@ -1,0 +1,36 @@
+; This is the Calva evaluation results output window.
+; TIPS: The keyboard shortcut `ctrl+alt+c o` shows and focuses this window
+;   when connected to a REPL session.
+; Please see https://calva.io/output/ for more info.
+; Happy coding! ♥️
+
+; Connecting ...
+; Hooking up nREPL sessions...
+; Connected session: clj
+; TIPS: 
+;   - You can edit the contents here. Use it as a REPL if you like.
+;   - `alt+enter` evaluates the current top level form.
+;   - `ctrl+enter` evaluates the current form.
+;   - `alt+up` and `alt+down` traverse up and down the REPL command history
+;      when the cursor is after the last contents at the prompt
+;   - Clojure lines in stack traces are peekable and clickable.
+clj꞉shadow.user꞉>  ; Use `alt+enter` to evaluate
+; Creating cljs repl session...
+; Connecting cljs repl: shadow-cljs...
+;   The Calva Connection Log might have more connection progress information.
+; Connected session: cljs, repl: :app
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+false
+cljs꞉date-range.views꞉>  ; Use `alt+enter` to evaluate
+true
+cljs꞉date-range.views꞉> 
+true
+cljs꞉date-range.views꞉> 
+false
+cljs꞉date-range.views꞉> 
+#'date-range.views/create-interval
+cljs꞉date-range.views꞉> 
+[#object[Object 20210803T000000] #object[Object 20210804T000000] #object[Object 20210805T000000] #object[Object 20210806T000000] #object[Object 20210807T000000] #object[Object 20210808T000000] #object[Object 20210809T000000] #object[Object 20210810T000000] #object[Object 20210811T000000] #object[Object 20210812T000000] #object[Object 20210813T000000] #object[Object 20210814T000000] #object[Object 20210815T000000] #object[Object 20210816T000000] #object[Object 20210817T000000] #object[Object 20210818T000000] #object[Object 20210819T000000] #object[Object 20210820T000000] #object[Object 20210821T000000] #object[Object 20210822T000000] #object[Object 20210823T000000] #object[Object 20210824T000000] #object[Object 20210825T000000] #object[Object 20210826T000000] #object[Object 20210827T000000] #object[Object 20210828T000000] #object[Object 20210829T000000] #object[Object 20210830T000000] #object[Object 20210831T000000] #object[Object 20210901T000000] #object[Object 20210902T000000] #object[Object 20210903T000000]]
+cljs꞉date-range.views꞉> 

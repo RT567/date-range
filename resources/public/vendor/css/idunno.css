@@ -1,0 +1,53 @@
+.default-class:hover {
+    cursor: pointer;
+    background-color: #889afd3b
+}
+
+.interval-date:hover {
+    cursor: pointer;
+    background-color: #50b4db
+}
+
+.selected-date:hover {
+    cursor: pointer;
+    background-color: #50b4db
+}
+
+.selected-date {
+    background-color: #3ab0ffbd;
+}
+
+.interval-date {
+    background-color: #b0d2ffb4;
+}
+
+.temp-date {
+    background-color: #889afd3b;
+}
+
+.temp-date:hover, .nav-button:hover {
+    cursor: pointer;
+}
+
+td {
+    text-align: center;
+}
+
+.disabled-td {
+    padding: 10px;
+    opacity: 0.3;
+    color: brown;
+}
+
+.today {
+    background-color: #ffd413;
+}
+
+.today:hover {
+    cursor: pointer;
+    background-color: #cca700;
+}
+
+.test2 {
+    background-color: red;
+}
