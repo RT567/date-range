@@ -1,17 +1,23 @@
 .daterange-td-basic {
     padding: 5px;
     width: 30px;
+    text-align: center;
     color: #2c2d2ecb;
-}
-
-.daterange-week {
-    font-size: 80%;
-    color: #ccc
+    white-space: nowrap;
+    font-weight: normal;
 }
 
 .daterange-default-td:hover {
     cursor: pointer;
-    background-color: #889afd3b
+    background: #357ebd;
+    color: #FFF;
+    /*background-color: #889afd3b*/
+}
+
+.daterange-week {
+    font-size: 80%;
+    text-align: center;
+    color: #ccc
 }
 
 .daterange-interval-td {
@@ -20,43 +26,58 @@
 
 .daterange-interval-td:hover {
     cursor: pointer;
-    background-color: #50b4db
+    background: #357ebd;
+    color: #FFF;
+    /*background-color: #50b4db*/
 }
 
-.daterange-selected-td {
-    background-color: #3ab0ffbd;
-}
-
-.daterange-selected-td:hover {
+.daterange-start-td {
     cursor: pointer;
-    background-color: #50b4db
+    background-color: #3ab0ffbd;
+    border-radius: 5px 0px 0px 5px;
 }
 
+.daterange-end-td {
+    cursor: pointer;
+    background-color: #3ab0ffbd;
+    border-radius: 0px 5px 5px 0px;
+}
+
+.daterange-start-td:hover, .daterange-end-td:hover {
+    cursor: pointer;
+    color: white;
+    background-color: #357ebd;
+}
 
 .daterange-temp-td {
     background-color: #889afd3b;
 }
 
+.daterange-temp-td:hover {
+    background-color: #357ebd;
+    border-radius: 0px 5px 5px 0px;
+    cursor: pointer;
+    color: white;
+}
+
 .daterange-nav-button:hover {
-    background-color: #3ab0ffbd;
+    background-color: #357ebd;
     cursor: pointer;
     color: white;
 }
 
 .daterange-nav-button path {
-    fill: #3ab0ffbd;
+    fill: #357ebd;
 }
 
 .daterange-nav-button:hover path {
     fill: #FFF
 }
 
-.daterange-temp-td:hover {
-    cursor: pointer;
-}
-
-td {
+.daterange-weektitle-td {
     text-align: center;
+    font-weight: 500;
+    padding: 4px;
 }
 
 .daterange-disabled-td {
@@ -65,11 +86,13 @@ td {
 
 .daterange-today {
     background-color: #ffd413;
+    border-radius: 100px;
 }
 
 .daterange-today:hover {
     cursor: pointer;
-    background-color: #cca700;
+    color: white;
+    background-color: #9e8100;
 }
 
 .daterange-month-title {

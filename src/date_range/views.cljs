@@ -5,7 +5,7 @@
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [re-com.box :refer [line border]]
-   [re-com.core :as re-com :refer [at v-box h-box box]]
+   [re-com.core :as re-com :refer [at v-box h-box box gap]]
    [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
    [date-range.styles :as styles]
    [date-range.events :as events]
@@ -138,6 +138,7 @@
    :children [[prev-year-nav current-month-atom parts]
               [line]
               [prev-month-nav current-month-atom parts]
+              [gap :size "0px"] ;needed to stop the left month title from being highlighted when rapidly clicking previous month button
               [h-box
                :size "auto"
                :justify :center
@@ -254,20 +255,21 @@
   "Given a date, and the values in the internal model, determine which css class the :td should have"
   [day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?]
   (cond
-    (and (not= day "") (cljs-time/before? day @end-date) (cljs-time/after? day @start-date)) "daterange-interval-td"
+    (and @start-date (not= day "") (cljs-time/before? day @end-date) (cljs-time/after? day @start-date)) "daterange-interval-td"
     (when minimum (cljs-time/before? day (deref-or-value minimum))) "daterange-disabled-td"
     (when maximum (cljs-time/after? day (deref-or-value maximum))) "daterange-disabled-td"
     disabled? "daterange-disabled-td"
     (when selectable-fn (not (selectable-fn day))) "daterange-disabled-td"
-    (cljs-time/equal? day @start-date) "daterange-selected-td"
-    (cljs-time/equal? day @end-date) "daterange-selected-td"
-    (and (not= day "") (cljs-time/equal? @end-date @start-date) (cljs-time/before? day (plus-day @temp-end)) (cljs-time/after? day @start-date)) "daterange-temp-td" ;changed to fix flashing
+    (and @start-date (cljs-time/equal? day @start-date)) "daterange-start-td"
+    (and @start-date (cljs-time/equal? day @end-date)) "daterange-end-td"
+    (and @start-date (not= day "") (cljs-time/equal? @end-date @start-date) (cljs-time/before? day (plus-day @temp-end)) (cljs-time/after? day @start-date)) "daterange-temp-td" ;changed to fix flashing
     (and show-today? (cljs-time/equal? day (now->utc))) "daterange-today"
     :default "daterange-default-td"))
 
 (defn- create-day-td
   "Create table data elements with reactive classes and on click/hover handlers"
   [day [fsm start-date end-date temp-end] {:keys [on-change disabled? selectable-fn minimum maximum show-today? check-interval? parts] :as args}]
+  (prn "start of create-day-td")
   (let [disabled-data (vector minimum maximum disabled? selectable-fn)]
     (if (= day "") [:td ""]
         (let [correct-class (class-for-td day start-date end-date temp-end disabled? selectable-fn minimum maximum show-today?)
@@ -276,7 +278,7 @@
                 (vector (merge {:class (str "daterange-td-basic " correct-class (get-in parts [:date :class]))
                                 :style (get-in parts [:date :style])
                                 :on-click #(when clickable? (td-click-handler day [fsm start-date end-date] on-change check-interval? disabled-data))
-                                :on-mouse-over #(reset! temp-end day)}
+                                :on-mouse-enter #(reset! temp-end day)}
                                (get-in parts [:date :attr]))
                         (str (cljs-time/day day))))))))
 
@@ -328,7 +330,13 @@
         days-of-week (if (:days i18n)
                     (map (fn [new-day [td _]] [td new-day]) (:days i18n) days-vec)
                     days-vec)
-        table-row-weekdays (into into-tr (take 7 (drop (dec start-of-week) (cycle days-of-week))))
+        add-parts (fn [[td day-string]]
+                    (vector td (merge {:class (str "daterange-weektitle-td " (get-in parts [:day-title :class]))
+                                       :style (get-in parts [:day-title :style])}
+                                      (get-in parts [:day-title :attr]))
+                            day-string))
+        with-parts (map #(add-parts %) days-of-week)
+        table-row-weekdays (into into-tr (take 7 (drop (dec start-of-week) (cycle with-parts))))
         
         partitioned-days (days-for-month date start-of-week)
         date-rows (for [x partitioned-days]
@@ -345,21 +353,24 @@
 (defn- model-changed?
   "takes two date ranges and checks if they are different"
   [old latest]
+  (prn "start of model-changed?")
   (not (and
+        (nil? latest)
         (cljs-time/equal? (:start old) (:start latest))
         (cljs-time/equal? (:end old) (:end latest)))))
 
 (defn model? [{:keys [start end]}]
-  (and (date-like? start) (date-like? end)))
+  (and (date-like? start) (date-like? end))
+  true)
 
 ;for validation and demo
 (def daterange-parts-desc
   [{:name :wrapper               :level 0  :class ""   :impl "[date-range]"  :notes "Outer wrapper of the date-range picker."} ;seems this isn't a used accessor, even in datepicker?
    {:name :border                :level 1  :class ""   :impl "[border]"      :notes "The border."}
-   {:type :legacy                :level 2  :class ""   :impl "[:div]"        :notes "The div container"}
-   {:type :legacy                :level 3  :class ""   :impl "[h-box]"       :notes "To display hozitonally."}
+   {:type :legacy                :level 2  :class ""   :impl "[:div]"        :notes "The div container"       :name-label "-"}
+   {:type :legacy                :level 3  :class ""   :impl "[h-box]"       :notes "To display hozitonally." :name-label "-"}
 
-   {:type :legacy                :level 4  :class ""   :impl "[v-box]"       :notes "To contain the left side of the display."}
+   {:type :legacy                :level 4  :class ""   :impl "[v-box]"       :notes "To contain the left side of the display." :name-label "-"}
    {:name :prev-nav              :level 5  :class ""   :impl "[h-box]"       :notes "Contains navigation buttons and month/year."}
    {:name :prev-year             :level 6  :class ""   :impl "[box]"         :notes "Previous year button."}
    {:name :prev-year-icon        :level 7  :class ""   :impl "[:svg]"        :notes "Previous year icon."}
@@ -368,11 +379,11 @@
    {:name :month-title           :level 6  :class ""   :impl "[box]"         :notes "Month title for both sides."}
    {:name :year-title            :level 6  :class ""   :impl "[box]"         :notes "Year title for both sides."}
    {:name :table                 :level 5  :class ""   :impl "[:table]"      :notes "Table."}
-   {:type :legacy                :level 6  :class ""   :impl "[:tr]"         :notes "Row containing day titles."}
+   {:type :legacy                :level 6  :class ""   :impl "[:tr]"         :notes "Row containing day titles." :name-label "-"}
    {:name :day-title             :level 7  :class ""   :impl "[:td]"         :notes "Titles for columns, days of the week"}
    {:name :date                  :level 7  :class ""   :impl "[:td]"         :notes "The date tiles populating the table."}
 
-   {:type :legacy                :level 4  :class ""   :impl "[v-box]"       :notes "To contain the right side of the display."}
+   {:type :legacy                :level 4  :class ""   :impl "[v-box]"       :notes "To contain the right side of the display." :name-label "-"}
    {:name :next-nav              :level 5  :class ""   :impl "[h-box]"       :notes "Contains navigation buttons and month/year."}
    {:name :next-month            :level 6  :class ""   :impl "[box]"         :notes "Next month button."}
    {:name :next-month-icon       :level 7  :class ""   :impl "[:svg]"        :notes "Next month icon."}
@@ -384,22 +395,22 @@
 
 (def daterange-args-desc
   "used to validate the arguments supplied by the user"
-  [{:name :model              :required true                    :type "A map with with :start and :end values that satisfy DateTimeProtocol | r/atom"   :validate-fn model?}
-   {:name :on-change          :required true                    :type "satisfies DateTimeProtocol -> nil"                                               :validate-fn fn?}
+  [{:name :model              :required true                    :type "A map with with :start and :end values that satisfy DateTimeProtocol | r/atom"   :validate-fn model?   :description "temp"}
+   {:name :on-change          :required true                    :type "satisfies DateTimeProtocol -> nil"                                               :validate-fn fn?   :description "temp"}
    {:name :disabled?          :required false  :default false   :type "boolean | atom"}
-   {:name :selectable-fn      :required false                   :type "function"                                                                        :validate-fn fn?}
+   {:name :selectable-fn      :required false                   :type "function"                                                                        :validate-fn fn?   :description "temp"}
    {:name :show-today?        :required false  :default false   :type "boolean"}
-   {:name :minimum            :required false                   :type "satisfies DateTimeProtocol | r/atom"                                             :validate-fn date-like?}
-   {:name :maximum            :required false                   :type "satisfies DateTimeProtocol | r/atom"                                             :validate-fn date-like?}
+   {:name :minimum            :required false                   :type "satisfies DateTimeProtocol | r/atom"                                             :validate-fn date-like?   :description "temp"}
+   {:name :maximum            :required false                   :type "satisfies DateTimeProtocol | r/atom"                                             :validate-fn date-like?   :description "temp"}
    {:name :check-interval?    :required false  :default false   :type "boolean"}
-   {:name :start-of-week      :required false  :default 1       :type "int"                                                                             :validate-fn int?}
+   {:name :start-of-week      :required false  :default 1       :type "int"                                                                             :validate-fn int?   :description "temp"}
    {:name :show-weeks?        :required false  :default false   :type "boolean"}
    {:name :hide-border?       :required false                   :type "boolean"}
-   {:name :i18n               :required false                   :type "map"                                                                             :validate-fn map?}
-   {:name :class              :required false                   :type "string"                                                                          :validate-fn string?}
-   {:name :style              :required false                   :type "CSS style map"                                                                   :validate-fn css-style?}
-   {:name :attr               :required false                   :type "HTML attribute map"                                                              :validate-fn html-attr?}
-   {:name :parts              :required false                   :type "map"                                                                             :validate-fn (parts? daterange-parts)}])
+   {:name :i18n               :required false                   :type "map"                                                                             :validate-fn map?   :description "temp"}
+   {:name :class              :required false                   :type "string"                                                                          :validate-fn string?   :description "temp"}
+   {:name :style              :required false                   :type "CSS style map"                                                                   :validate-fn css-style?   :description "temp"}
+   {:name :attr               :required false                   :type "HTML attribute map"                                                              :validate-fn html-attr?   :description "temp"}
+   {:name :parts              :required false                   :type "map"                                                                             :validate-fn (parts? daterange-parts)   :description "temp"}])
 
 (defn daterange
   "Tracks the external model, but takes inputs into an internal model. The given on-change function is only called after a full selection has been made"
@@ -424,16 +435,15 @@
            [h-box :src (at)
             :gap "60px"
             :padding "15px"
-            :height "255px"
+            :height "250px"
             :children [[v-box :src (at)
                         :align :center
-                        :gap "15px"
-                        ;:width "210px"
+                        :gap "10px"
                         :children [[prev-nav current-month parts i18n]
                                    [create-table @current-month [fsm start-date end-date temp-end] args]]]
                        [v-box :src (at)
                         :align :center
-                        :gap "15px"
+                        :gap "10px"
                         :children [[next-nav current-month parts i18n]
                                    [create-table (plus-month @current-month) [fsm start-date end-date temp-end] args]]]]]
            hide-border?
@@ -444,9 +454,13 @@
            src
            (or debug-as (reflect-current-component))]))))))
 
-(def test-model (r/atom {:start (cljs-time/plus (now->utc) (cljs-time/days 5)) :end (cljs-time/plus (now->utc) (cljs-time/days 10))}))
+(def test-model (r/atom {:start (cljs-time/plus (now->utc) (cljs-time/days 1)) :end (cljs-time/plus (now->utc) (cljs-time/days 2))}))
+(def test-model-nil (r/atom nil))
 
 (def test-atom3 (r/atom "white"))
+
+(def test-attr {:on-mouse-enter #(reset! test-atom3 "lightblue")
+               :on-mouse-leave #(reset! test-atom3 "white")})
 
 (defn home-panel []
   [re-com/v-box
@@ -454,25 +468,24 @@
    :gap      "1em"
    :align :center
    :children [[daterange
-               :i18n {:months [1 2 3 4 5 6 7 8 9 10 11 12]
-                      :days [1 2 3 4 5 6 7]}
-               :model test-model
-               :on-change #(reset! test-model %)
+               :i18n {;:months [1 2 3 4 5 6 7 8 9 10 11 12]
+                      ;:days ["Mon" "Dien" "Mitt" "Don" "Fre" "Sam" "Son"]
+                      }
+               :hide-border? false
+               :model test-model-nil
+               :on-change #(reset! test-model-nil %)
                :start-of-week 1
                :disabled? false
-               :selectable-fn #(not= (mod (cljs-time/day %) 18) 0)
+               :selectable-fn #(not (or (= (mod (cljs-time/day %) 13) 0) (= (mod (cljs-time/day %) 18) 0)))
                ;:minimum (parse-date-from-ints 11 7 2021)
                ;:maximum (parse-date-from-ints 20 9 2021)
                :show-today? true
                :style {:background-color @test-atom3}
                ;:attr {:on-mouse-enter #(reset! test-atom3 "lightblue")
                ;       :on-mouse-leave #(reset! test-atom3 "white")}
-               :hide-border? false
-               :check-interval? true
-               :show-weeks? true
-               ;:parts {:prev-nav {:style {:background-color "lightblue"}}}
-               
-               ]]])
+               ;:check-interval? true
+               ;:show-weeks? true
+               :parts {:day-title {:style {:font-size "12px"}}}]]])
 
 
 (defmethod routes/panels :home-panel [] [home-panel])
